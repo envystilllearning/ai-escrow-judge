@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default async function ProjectOverview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
   const res = await fetch(`${base}/api/projects`, { next: { revalidate: 0 }, cache: 'no-store' });
   const data = await res.json();
   const project = (data.projects ?? []).find((p: any) => p.id === id) ?? null;

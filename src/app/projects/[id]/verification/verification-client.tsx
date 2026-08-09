@@ -106,8 +106,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
     setRunning(true);
     setError(null);
     try {
-      const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      const verifyUrl = `${base}/api/milestones/${encodeURIComponent(milestone.id)}/verify`;
+      const verifyUrl = '/api/milestones/' + encodeURIComponent(milestone.id) + '/verify';
       console.log('[AIJ][DEBUG] runVerification fetch', verifyUrl);
       const res = await fetch(verifyUrl, {
         method: 'POST',
@@ -154,8 +153,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
     setSubmitting(true);
     setError(null);
     try {
-      const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      const res = await fetch(`${base}/api/milestones/${encodeURIComponent(milestone.id)}/decision`, {
+      const res = await fetch('/api/milestones/' + encodeURIComponent(milestone.id) + '/decision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

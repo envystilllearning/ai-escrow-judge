@@ -3,7 +3,7 @@ import type { Project } from '@/types';
 import Link from 'next/link';
 
 export default async function ProjectsPage() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
   const res = await fetch(`${base}/api/projects`, { next: { revalidate: 0 }, cache: 'no-store' });
   const data = await res.json();
   const projects = (data.projects ?? []) as Project[];
