@@ -1,12 +1,22 @@
 import { SiteShell } from '@/app/components/site-shell';
 import type { Project } from '@/types';
 import Link from 'next/link';
+import { getProjects } from '@/app/actions/store';
 
 export default async function ProjectsPage() {
-  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
-  const res = await fetch(`${base}/api/projects`, { next: { revalidate: 0 }, cache: 'no-store' });
-  const data = await res.json();
-  const projects = (data.projects ?? []) as Project[];
+  let projects: Project[] = [];
+  try {
+    projects = await getProjects();
+  } catch {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
+          <p className="mt-4 text-sm text-neutral-700">Unable to load projects right now. Please try again later.</p>
+        </div>
+      </SiteShell>
+    );
+  }
 
   return (
     <SiteShell>
