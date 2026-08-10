@@ -5,13 +5,13 @@ const STATUS_STYLES: Record<string, string> = {
   PARTIAL: 'border-amber-300 bg-amber-50 text-amber-800',
   FAIL: 'border-red-300 bg-red-50 text-red-800',
   UNVERIFIED: 'border-neutral-300 bg-neutral-50 text-neutral-600',
-  REVIEW_REQUIRED: 'border-blue-300 bg-blue-50 text-blue-800',
+  REVIEW_REQUIRED: 'border-indigo-300 bg-indigo-50 text-indigo-800',
   APPROVED: 'border-green-300 bg-green-50 text-green-800',
   VERIFIED: 'border-green-300 bg-green-50 text-green-800',
-  READY_FOR_VERIFICATION: 'border-blue-300 bg-blue-50 text-blue-800',
+  READY_FOR_VERIFICATION: 'border-indigo-300 bg-indigo-50 text-indigo-800',
   REVISION_REQUESTED: 'border-amber-300 bg-amber-50 text-amber-800',
   REJECTED: 'border-red-300 bg-red-50 text-red-800',
-  active: 'border-green-300 bg-green-50 text-green-800',
+  active: 'border-indigo-300 bg-indigo-50 text-indigo-800',
   draft: 'border-neutral-300 bg-neutral-50 text-neutral-600',
   completed: 'border-neutral-300 bg-neutral-50 text-neutral-600',
 };
@@ -39,13 +39,13 @@ export function LifecycleSteps({ current }: { current: number }) {
             key={label}
             className={`rounded border px-3 py-2.5 text-center ${
               isCurrent
-                ? 'border-neutral-900 bg-neutral-900 text-white'
+                ? 'border-indigo-300 bg-indigo-50 text-indigo-800'
                 : isDone
                   ? 'border-neutral-300 bg-neutral-50 text-neutral-700'
                   : 'border-neutral-200 bg-white text-neutral-400'
             }`}
           >
-            <div className={`text-[10px] font-semibold uppercase tracking-wider ${isCurrent ? 'text-neutral-300' : isDone ? 'text-neutral-500' : 'text-neutral-400'}`}>
+            <div className={`text-[10px] font-semibold uppercase tracking-wider ${isCurrent ? 'text-indigo-700' : isDone ? 'text-neutral-500' : 'text-neutral-400'}`}>
               {isDone ? 'Done' : isCurrent ? 'Now' : 'Next'}
             </div>
             <div className="mt-0.5 text-xs font-semibold">{label}</div>

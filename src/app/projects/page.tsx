@@ -29,7 +29,7 @@ export default async function ProjectsPage() {
             <p className="mt-2 text-neutral-600">Select a project or create a new one.</p>
           </div>
           <Link
-            className="inline-flex items-center justify-center h-11 px-5 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors"
+            className="inline-flex items-center justify-center h-11 px-5 border border-indigo-600 text-indigo-700 text-sm font-semibold hover:bg-indigo-50 transition-colors"
             href="/projects/new"
           >
             Create Project
@@ -44,7 +44,7 @@ export default async function ProjectsPage() {
               <Link
                 key={project.id}
                 href={isDemo ? '/projects/demo' : `/projects/${project.id}`}
-                className="group block rounded border border-neutral-200 p-5 hover:border-neutral-900 transition-colors"
+                className="group block rounded border border-neutral-200 p-5 hover:border-indigo-600 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="text-sm font-medium text-neutral-500">Project</div>

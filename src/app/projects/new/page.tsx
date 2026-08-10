@@ -61,11 +61,11 @@ export default function NewProjectPage() {
                 <button
                   type="submit"
                   disabled={status === 'saving'}
-                  className="inline-flex items-center justify-center h-11 px-5 bg-neutral-900 text-white hover:bg-neutral-800 disabled:opacity-60 transition-colors"
+                  className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-60 transition-colors"
                 >
                   {status === 'saving' ? 'Creating...' : 'Create project'}
                 </button>
-                <Link className="inline-flex items-center justify-center h-11 px-5 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href="/projects">
+                <Link className="inline-flex items-center justify-center h-11 px-5 border border-indigo-600 text-indigo-700 hover:bg-indigo-50 transition-colors" href="/projects">
                   Cancel
                 </Link>
               </div>
@@ -77,7 +77,7 @@ export default function NewProjectPage() {
             <h1 className="text-2xl font-semibold tracking-tight">Project created</h1>
             <p className="mt-2 text-neutral-600">Demo criteria and a sample milestone were added.</p>
             <div className="mt-6">
-              <Link className="inline-flex items-center justify-center h-11 px-5 bg-neutral-900 text-white hover:bg-neutral-800 transition-colors" href={`/projects/${createdId}`}>
+              <Link className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white hover:bg-indigo-500 transition-colors" href={`/projects/${createdId}`}>
                 Open project
               </Link>
             </div>

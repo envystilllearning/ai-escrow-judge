@@ -226,7 +226,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
                   </div>
                   {!isLocked ? (
                     <div className="flex shrink-0 items-center gap-2">
-                      <button onClick={() => startEdit(item)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm">Edit</button>
+                      <button onClick={() => startEdit(item)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-indigo-600 transition-colors text-sm">Edit</button>
                       <button onClick={() => removeItem(item.id)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-red-300 hover:text-red-800 transition-colors text-sm">Delete</button>
                     </div>
                   ) : null}
@@ -299,7 +299,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
                     key={c.id}
                     type="button"
                     onClick={() => setForm((f) => ({ ...f, criterionIds: selected ? f.criterionIds.filter((id) => id !== c.id) : [...f.criterionIds, c.id] }))}
-                    className={`inline-flex h-9 items-center rounded border px-3 text-xs font-medium transition-colors ${selected ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:border-neutral-900'}`}
+                    className={`inline-flex h-9 items-center rounded border px-3 text-xs font-medium transition-colors ${selected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-neutral-300 text-neutral-700 hover:border-indigo-600'}`}
                   >
                     {c.code} · {criterionTitle(c.code)}
                   </button>
@@ -313,12 +313,12 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
             <button
               onClick={save}
               disabled={loading || isLocked}
-              className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center px-4 border border-indigo-600 text-indigo-700 text-sm font-semibold hover:bg-indigo-50 transition-colors disabled:opacity-60"
             >
               {loading ? 'Saving...' : editingId ? 'Update evidence' : 'Add evidence'}
             </button>
             {editingId ? (
-              <button onClick={reset} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm">Cancel</button>
+              <button onClick={reset} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-indigo-600 transition-colors text-sm">Cancel</button>
             ) : null}
             {savedFlash ? <span className="text-xs text-green-700">{savedFlash}</span> : null}
           </div>
@@ -332,10 +332,10 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
           <SectionLabel>Milestone action</SectionLabel>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button onClick={submitForVerification} disabled={loading || isLocked} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60">
+          <button onClick={submitForVerification} disabled={loading || isLocked} className="inline-flex h-10 items-center justify-center px-4 border border-indigo-600 text-indigo-700 text-sm font-semibold hover:bg-indigo-50 transition-colors disabled:opacity-60">
             {loading ? 'Submitting...' : 'Submit for verification'}
           </button>
-          <Link className="inline-flex h-10 items-center justify-center px-4 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors" href={`/projects/${projectId}/verification`}>
+          <Link className="inline-flex h-10 items-center justify-center px-4 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors" href={`/projects/${projectId}/verification`}>
             Go to verification
           </Link>
           {isLocked ? <div className="text-xs text-neutral-500">This milestone is already submitted or verified.</div> : null}

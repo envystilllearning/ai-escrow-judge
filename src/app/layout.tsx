@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Escrow Judge',
-  description: 'Verify the work before you approve the milestone.',
+  title: 'Milestone Verify',
+  description: 'AI-assisted milestone verification.',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

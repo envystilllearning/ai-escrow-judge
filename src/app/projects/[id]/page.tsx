@@ -13,7 +13,7 @@ export default async function ProjectOverview({ params }: { params: Promise<{ id
         <div className="mx-auto max-w-6xl px-6 py-16">
           <h1 className="text-3xl font-semibold tracking-tight">Project not found</h1>
           <Link
-            className="mt-6 inline-flex h-11 items-center justify-center px-5 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors"
+            className="mt-6 inline-flex h-11 items-center justify-center px-5 border border-indigo-600 text-indigo-700 hover:bg-indigo-50 transition-colors"
             href="/projects"
           >
             Back to projects
@@ -120,13 +120,13 @@ export default async function ProjectOverview({ params }: { params: Promise<{ id
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            className="inline-flex h-11 items-center justify-center px-5 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors"
+            className="inline-flex h-11 items-center justify-center px-5 border border-indigo-600 text-indigo-700 text-sm font-semibold hover:bg-indigo-50 transition-colors"
             href={`/projects/${project.id}/evidence`}
           >
             Review evidence
           </Link>
           <Link
-            className="inline-flex h-11 items-center justify-center px-5 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
+            className="inline-flex h-11 items-center justify-center px-5 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors"
             href={`/projects/${project.id}/verification`}
           >
             Open verification

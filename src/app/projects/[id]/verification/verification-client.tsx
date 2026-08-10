@@ -202,11 +202,11 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
       <header className="border-b border-neutral-200">
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
           <div className="text-sm font-semibold tracking-tight">
-            <Link className="hover:text-neutral-600" href="/">AI Escrow Judge</Link>
+            <Link className="hover:text-neutral-600" href="/">Milestone Verify</Link>
           </div>
           <nav className="flex items-center gap-6 text-sm">
             <Link className="text-neutral-600 hover:text-neutral-900" href="/projects">Projects</Link>
-            <Link className="inline-flex items-center justify-center h-9 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href={`/projects/${projectId}/evidence`}>Evidence</Link>
+            <Link className="inline-flex items-center justify-center h-9 px-4 border border-indigo-600 text-indigo-700 hover:bg-indigo-50 transition-colors" href={`/projects/${projectId}/evidence`}>Evidence</Link>
           </nav>
         </div>
       </header>
@@ -221,7 +221,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
                 <StatusBadge status={status} />
               </div>
             </div>
-            <Link className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm" href={`/projects/${projectId}`}>
+            <Link className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-indigo-600 transition-colors text-sm" href={`/projects/${projectId}`}>
               ← Project overview
             </Link>
           </div>
@@ -237,7 +237,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
               <button
                 onClick={runVerification}
                 disabled={running}
-                className="mt-6 inline-flex h-11 items-center justify-center px-5 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-60"
+                className="mt-6 inline-flex h-11 items-center justify-center px-5 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors disabled:opacity-60"
               >
                 {running ? 'Running verification...' : 'Run verification'}
               </button>
@@ -365,7 +365,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
 
                   {!confirming ? (
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                      <button onClick={() => openConfirm('APPROVE')} className="inline-flex h-11 items-center justify-center px-5 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                      <button onClick={() => openConfirm('APPROVE')} className="inline-flex h-11 items-center justify-center px-5 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors">
                         Approve
                       </button>
                       <button onClick={() => openConfirm('REQUEST_REVISION')} className="inline-flex h-11 items-center justify-center px-5 border border-amber-400 text-amber-800 text-sm font-semibold hover:bg-amber-50 transition-colors">
@@ -388,14 +388,14 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
                     value={decisionComment}
                     onChange={(e) => setDecisionComment(e.target.value)}
                     placeholder="Optional reason"
-                    className="mt-3 w-full rounded border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:border-neutral-900"
+                    className="mt-3 w-full rounded border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:border-indigo-600"
                     rows={3}
                   />
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <button onClick={submitDecision} disabled={submitting} className="inline-flex h-10 items-center justify-center px-5 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-60">
+                    <button onClick={submitDecision} disabled={submitting} className="inline-flex h-10 items-center justify-center px-5 bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors disabled:opacity-60">
                       {submitting ? 'Recording...' : 'Confirm decision'}
                     </button>
-                    <button onClick={() => setConfirming(false)} className="inline-flex h-10 items-center justify-center px-5 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm">
+                    <button onClick={() => setConfirming(false)} className="inline-flex h-10 items-center justify-center px-5 border border-neutral-300 text-neutral-700 hover:border-indigo-600 transition-colors text-sm">
                       Cancel
                     </button>
                   </div>
@@ -432,7 +432,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
           )}
 
           <div className="mt-10">
-            <Link className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm" href={`/projects/${projectId}/evidence`}>Back to evidence</Link>
+            <Link className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-indigo-600 transition-colors text-sm" href={`/projects/${projectId}/evidence`}>Back to evidence</Link>
           </div>
         </div>
       </main>
@@ -440,7 +440,7 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
       <footer className="border-t border-neutral-200">
         <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between text-xs text-neutral-500">
           <div>Demo environment. No wallet or payment is required.</div>
-          <div className="uppercase tracking-wide">AI Escrow Judge</div>
+          <div className="uppercase tracking-wide">Milestone Verify</div>
         </div>
       </footer>
     </div>
