@@ -310,9 +310,9 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
                                 Evidence: <span className="font-mono font-semibold">{evidenceRefs}</span>
                               </span>
                             ) : null}
-                            <span className="inline-flex items-center rounded border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-500">
-                              Confidence: {Math.round((result.confidence ?? 0) * 100)}%
-                            </span>
+                              <span className="inline-flex items-center rounded border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-500">
+                                {result.confidence == null || result.confidence === 0 ? 'Not scored' : `Confidence: ${Math.round(result.confidence * 100)}%`}
+                              </span>
                           </div>
                           <p className="text-neutral-700">{result.reason}</p>
                           {result.missingEvidence?.length ? (
