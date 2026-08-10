@@ -97,16 +97,18 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
   const [pendingDecision, setPendingDecision] = useState<PendingDecision | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [decisionComment, setDecisionComment] = useState('');
+  const [currentVerification, setCurrentVerification] = useState<MilestoneVerificationRow | null>(verification);
+  const [currentMilestone, setCurrentMilestone] = useState<MilestoneRow>(milestone);
 
-  const status = milestone.status;
+  const status = currentMilestone.status;
 
   const runVerification = async () => {
-    console.log('[AIJ][DEBUG] runVerification called', { projectId, milestoneId: milestone?.id });
-    if (!projectId || !milestone?.id) return;
+    console.log('[AIJ][DEBUG] runVerification called', { projectId, milestoneId: currentMilestone?.id });
+    if (!projectId || !currentMilestone?.id) return;
     setRunning(true);
     setError(null);
     try {
-      const verifyUrl = '/api/milestones/' + encodeURIComponent(milestone.id) + '/verify';
+      const verifyUrl = '/api/milestones/' + encodeURIComponent(currentMilestone.id) + '/verify';
       console.log('[AIJ][DEBUG] runVerification fetch', verifyUrl);
       const res = await fetch(verifyUrl, {
         method: 'POST',
@@ -149,21 +151,21 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
   };
 
   const submitDecision = async () => {
-    if (!verification || !pendingDecision) return;
+    if (!currentVerification || !pendingDecision) return;
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/milestones/' + encodeURIComponent(milestone.id) + '/decision', {
+      const res = await fetch('/api/milestones/' + encodeURIComponent(currentMilestone.id) + '/decision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectId,
-          milestoneId: milestone.id,
+          milestoneId: currentMilestone.id,
           decision: pendingDecision.type,
           comment: decisionComment || undefined,
           decidedBy: 'Demo Client',
-          verificationId: verification.id,
-          criteriaVersion: verification.criteriaVersionHash,
+          verificationId: currentVerification.id,
+          criteriaVersion: currentVerification.criteriaVersionHash,
         }),
       });
       const json = await res.json();
@@ -180,9 +182,6 @@ export function ProjectVerificationClient({ projectId, milestone, criteria, evid
       setSubmitting(false);
     }
   };
-
-  const [currentVerification, setCurrentVerification] = useState<MilestoneVerificationRow | null>(verification);
-  const [currentMilestone, setCurrentMilestone] = useState<MilestoneRow>(milestone);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-neutral-900">

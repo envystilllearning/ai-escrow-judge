@@ -1,13 +1,11 @@
 import { SiteShell } from '@/app/components/site-shell';
 import Link from 'next/link';
 import { EvidenceWorkflow } from './evidence-workflow';
+import { getProject } from '@/app/actions/store';
 
 export default async function ProjectEvidence({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
-  const res = await fetch(`${base}/api/projects`, { next: { revalidate: 0 }, cache: 'no-store' });
-  const data = await res.json();
-  const project = (data.projects ?? []).find((p: any) => p.id === id);
+  const project = await getProject(id);
   const milestone = project?.milestones?.[0] || null;
   const criteria = milestone?.criteria || [];
   const evidence = milestone?.evidence || [];

@@ -1,10 +1,6 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import type { Project, Evidence, MilestoneStatus, MilestoneVerification, Decision, DecisionType } from '@/types';
-
-const DATA_PATH = path.join(process.cwd(), 'data', 'projects.json');
 
 export type Store = {
   projects: Project[];
@@ -137,34 +133,17 @@ function seedDemoProject(): Project {
   };
 }
 
-let cached: Promise<Store> | undefined;
+let store: Store | undefined;
 
 export async function loadStore(): Promise<Store> {
-  if (!cached) {
-    cached = (async () => {
-      try {
-        const raw = await fs.readFile(DATA_PATH, 'utf-8');
-        const parsed = JSON.parse(raw) as Store;
-        if (!Array.isArray(parsed.projects) || parsed.projects.length === 0) {
-          const seeded = defaultStore();
-          await saveStore(seeded);
-          return seeded;
-        }
-        return parsed;
-      } catch {
-        const seeded = defaultStore();
-        await saveStore(seeded);
-        return seeded;
-      }
-    })();
+  if (!store) {
+    store = defaultStore();
   }
-  return cached;
+  return store;
 }
 
-export async function saveStore(store: Store): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(store, null, 2), 'utf-8');
-  cached = Promise.resolve(store);
+export async function saveStore(next: Store): Promise<void> {
+  store = next;
 }
 
 export async function getProjects() {
