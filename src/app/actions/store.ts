@@ -1,10 +1,11 @@
-'use server';
 
 import type { Project, Evidence, MilestoneStatus, MilestoneVerification, Decision, DecisionType } from '@/types';
 
 export type Store = {
   projects: Project[];
 };
+
+export const DEMO_PROJECT_ID = 'd3c0b470-0000-4000-8000-000000000001';
 
 function defaultStore(): Store {
   return {
@@ -40,7 +41,7 @@ function makeCriterion(milestoneId: string, code: string, description: string, v
 }
 
 function seedDemoProject(): Project {
-  const projectId = uid();
+  const projectId = DEMO_PROJECT_ID;
   const milestoneId = uid();
   const criteria = [
     makeCriterion(milestoneId, 'C-001', 'Hero section is implemented with headline, subheadline, and CTA.', 'direct', ['Live URL or screenshot']),
