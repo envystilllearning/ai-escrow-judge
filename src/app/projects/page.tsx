@@ -1,7 +1,8 @@
 import { SiteShell } from '@/app/components/site-shell';
+import { StatusBadge } from '@/app/components/status';
 import type { Project } from '@/types';
 import Link from 'next/link';
-import { getProjects } from '@/app/actions/store';
+import { getProjects, DEMO_PROJECT_ID } from '@/app/actions/store';
 
 export default async function ProjectsPage() {
   let projects: Project[] = [];
@@ -11,8 +12,8 @@ export default async function ProjectsPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-          <p className="mt-4 text-sm text-neutral-700">Unable to load projects right now. Please try again later.</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
+          <p className="mt-2 text-neutral-600">Unable to load projects right now. Please try again later.</p>
         </div>
       </SiteShell>
     );
@@ -21,26 +22,60 @@ export default async function ProjectsPage() {
   return (
     <SiteShell>
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Projects</div>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight">Projects</h1>
             <p className="mt-2 text-neutral-600">Select a project or create a new one.</p>
           </div>
-          <Link className="inline-flex items-center justify-center h-10 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href="/projects/new">
+          <Link
+            className="inline-flex items-center justify-center h-11 px-5 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors"
+            href="/projects/new"
+          >
             Create Project
           </Link>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <Link key={project.id} href={`/projects/${project.id}`} className="block rounded border border-neutral-200 p-5 hover:border-neutral-400 transition-colors">
-              <div className="text-sm font-medium text-neutral-500">Project</div>
-              <div className="mt-1 text-lg font-semibold">{project.title}</div>
-              <div className="mt-2 text-xs text-neutral-500">Status: {project.status}</div>
-            </Link>
-          ))}
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => {
+            const milestone = project.milestones?.[0];
+            const isDemo = project.id === DEMO_PROJECT_ID;
+            return (
+              <Link
+                key={project.id}
+                href={isDemo ? '/projects/demo' : `/projects/${project.id}`}
+                className="group block rounded border border-neutral-200 p-5 hover:border-neutral-900 transition-colors"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="text-sm font-medium text-neutral-500">Project</div>
+                  {isDemo ? (
+                    <span className="inline-flex items-center rounded-full border border-neutral-300 bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
+                      Demo
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-1 text-lg font-semibold text-neutral-900">{project.title}</div>
+                {milestone ? (
+                  <div className="mt-1 text-xs text-neutral-500">{milestone.title}</div>
+                ) : null}
+                <div className="mt-3 flex items-center justify-between">
+                  {typeof project.budget === 'number' ? (
+                    <div className="text-sm font-medium text-neutral-700">${project.budget.toLocaleString()}</div>
+                  ) : (
+                    <span />
+                  )}
+                  <StatusBadge status={project.status} />
+                </div>
+                <div className="mt-3 border-t border-neutral-100 pt-3 text-[11px] text-neutral-400 group-hover:text-neutral-600 transition-colors">
+                  Open project →
+                </div>
+              </Link>
+            );
+          })}
           {!projects.length ? (
-            <div className="col-span-full text-neutral-600">No projects yet.</div>
+            <div className="col-span-full rounded border border-dashed border-neutral-300 p-10 text-center text-neutral-500">
+              No projects yet. Create the first one.
+            </div>
           ) : null}
         </div>
       </div>

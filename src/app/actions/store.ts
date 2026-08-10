@@ -1,4 +1,5 @@
 
+import { createHash } from 'node:crypto';
 import type { Project, Evidence, MilestoneStatus, MilestoneVerification, Decision, DecisionType } from '@/types';
 
 export type Store = {
@@ -15,6 +16,12 @@ function defaultStore(): Store {
 
 function uid(): string {
   return crypto.randomUUID();
+}
+
+function seedUuid(seed: string): string {
+  const hash = createHash('sha1').update(seed).digest('hex');
+  // UUID v5-style shape: 8-4-4-4-12, version nibble 5, variant 8.
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-5${hash.slice(12, 15)}-8${hash.slice(15, 18)}-${hash.slice(18, 30)}`;
 }
 
 function now(): string {
@@ -42,6 +49,7 @@ function makeCriterion(milestoneId: string, code: string, description: string, v
 
 function seedDemoProject(): Project {
   const projectId = DEMO_PROJECT_ID;
+  const n = now();
   const milestoneId = uid();
   const criteria = [
     makeCriterion(milestoneId, 'C-001', 'Hero section is implemented with headline, subheadline, and CTA.', 'direct', ['Live URL or screenshot']),
@@ -51,10 +59,121 @@ function seedDemoProject(): Project {
     makeCriterion(milestoneId, 'C-005', 'Production deployment URL resolves and loads successfully.', 'demonstration', ['Production URL']),
   ];
 
+  const evidenceList = [
+    {
+      id: uid(),
+      milestoneId,
+      type: 'URL' as const,
+      content: 'https://demo.northstar-studio.example',
+      description: 'Production landing page (live URL)',
+      submittedBy: 'freelancer',
+      criterionIds: [criteria[0].id, criteria[1].id, criteria[2].id, criteria[4].id],
+      status: 'SUBMITTED' as const,
+      createdAt: n,
+      updatedAt: n,
+    },
+    {
+      id: uid(),
+      milestoneId,
+      type: 'IMAGE' as const,
+      content: 'demo-image-reference://northstar-desktop-tablet.png',
+      description: 'Desktop and tablet layout screenshot',
+      submittedBy: 'freelancer',
+      criterionIds: [criteria[3].id],
+      status: 'SUBMITTED' as const,
+      createdAt: n,
+      updatedAt: n,
+    },
+    {
+      id: uid(),
+      milestoneId,
+      type: 'REPOSITORY_URL' as const,
+      content: 'https://github.com/example/northstar-landing-page',
+      description: 'Frontend repository',
+      submittedBy: 'freelancer',
+      criterionIds: [criteria[4].id],
+      status: 'SUBMITTED' as const,
+      createdAt: n,
+      updatedAt: n,
+    },
+  ];
+
+  const verification: import('@/types').MilestoneVerification = {
+    id: 'demo-verification-01',
+    milestoneId,
+    criteriaVersionHash: 'demo-criteria-v1',
+    status: 'VERIFIED',
+    results: [
+      {
+        criterionId: criteria[0].id,
+        status: 'PASS',
+        confidence: 0.85,
+        evidenceIds: [evidenceList[0].id],
+        reason: 'The submitted evidence demonstrates that the required hero section is present.',
+        missingEvidence: [],
+        humanReviewRequired: false,
+        createdAt: n,
+      },
+      {
+        criterionId: criteria[1].id,
+        status: 'PASS',
+        confidence: 0.85,
+        evidenceIds: [evidenceList[0].id],
+        reason: 'The pricing section is visible and corresponds to the agreed requirement.',
+        missingEvidence: [],
+        humanReviewRequired: false,
+        createdAt: n,
+      },
+      {
+        criterionId: criteria[2].id,
+        status: 'PASS',
+        confidence: 0.85,
+        evidenceIds: [evidenceList[0].id],
+        reason: 'The required testimonials section is present.',
+        missingEvidence: [],
+        humanReviewRequired: false,
+        createdAt: n,
+      },
+      {
+        criterionId: criteria[3].id,
+        status: 'PARTIAL',
+        confidence: 0.75,
+        evidenceIds: [evidenceList[1].id],
+        reason: 'Desktop and tablet states are demonstrated, but mobile behavior cannot be fully verified.',
+        missingEvidence: ['Mobile verification evidence'],
+        humanReviewRequired: false,
+        createdAt: n,
+      },
+      {
+        criterionId: criteria[4].id,
+        status: 'PASS',
+        confidence: 0.85,
+        evidenceIds: [evidenceList[0].id, evidenceList[2].id],
+        reason: 'A production deployment URL has been provided.',
+        missingEvidence: [],
+        humanReviewRequired: false,
+        createdAt: n,
+      },
+    ],
+    summary: {
+      overallStatus: 'PARTIAL',
+      verifiedCount: 4,
+      partialCount: 1,
+      failedCount: 0,
+      unverifiedCount: 0,
+      reviewRequiredCount: 0,
+      summary: '4 criteria are sufficiently supported, 1 criterion is only partially verified.',
+      humanReviewFlags: [],
+      verifiedAt: n,
+    },
+    createdAt: n,
+    updatedAt: n,
+  };
+
   const milestone: import('@/types').Milestone = {
     id: milestoneId,
     projectId,
-    title: 'Landing page delivery',
+    title: 'Website Launch — Milestone 01',
     description: 'Deliver the agreed landing page implementation with structured acceptance criteria.',
     status: 'READY_FOR_VERIFICATION',
     order: 1,
@@ -68,46 +187,10 @@ function seedDemoProject(): Project {
       },
     ],
     criteria,
-    evidence: [
-      {
-        id: uid(),
-        milestoneId,
-        type: 'URL',
-        content: 'https://demo.northstar-studio.example',
-        description: 'Production landing page (Demo Evidence)',
-        submittedBy: 'freelancer',
-        criterionIds: [criteria[0].id, criteria[1].id, criteria[2].id, criteria[4].id],
-        status: 'SUBMITTED',
-        createdAt: now(),
-        updatedAt: now(),
-      },
-      {
-        id: uid(),
-        milestoneId,
-        type: 'IMAGE',
-        content: 'demo-image-reference://northstar-desktop-tablet.png',
-        description: 'Desktop and tablet layout screenshot (Demo Evidence)',
-        submittedBy: 'freelancer',
-        criterionIds: [criteria[3].id],
-        status: 'SUBMITTED',
-        createdAt: now(),
-        updatedAt: now(),
-      },
-      {
-        id: uid(),
-        milestoneId,
-        type: 'REPOSITORY_URL',
-        content: 'https://github.com/example/northstar-landing-page',
-        description: 'Frontend repository (Demo Evidence)',
-        submittedBy: 'freelancer',
-        criterionIds: [criteria[4].id],
-        status: 'SUBMITTED',
-        createdAt: now(),
-        updatedAt: now(),
-      },
-    ],
-    createdAt: now(),
-    updatedAt: now(),
+    evidence: evidenceList,
+    verification,
+    createdAt: n,
+    updatedAt: n,
   };
 
   return {
@@ -115,18 +198,19 @@ function seedDemoProject(): Project {
     title: 'AI SaaS Landing Page',
     description: 'AI SaaS Landing Page',
     status: 'active',
-    createdAt: now(),
-    updatedAt: now(),
+    budget: 500,
+    createdAt: n,
+    updatedAt: n,
     agreement: {
-      id: uid(),
+      id: seedUuid(projectId + ':agreement'),
       projectId,
       title: 'Service Agreement',
-      statement: 'Build a responsive landing page with hero, pricing, testimonials, mobile layout and production deployment.',
-      rawText: 'Build a responsive landing page with hero, pricing, testimonials, mobile layout and production deployment.',
+      statement: 'Build a responsive landing page with hero, pricing, testimonials, mobile layout, and production deployment.',
+      rawText: 'Build a responsive landing page with hero, pricing, testimonials, mobile layout, and production deployment.',
       version: 1,
       status: 'draft',
-      createdAt: now(),
-      updatedAt: now(),
+      createdAt: n,
+      updatedAt: n,
     },
     milestones: [milestone],
     decisions: [],

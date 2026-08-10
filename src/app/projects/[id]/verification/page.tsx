@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SiteShell } from '@/app/components/site-shell';
 import { ProjectVerificationClient } from '@/app/projects/[id]/verification/verification-client';
 import { getProject } from '@/app/actions/store';
 
@@ -13,21 +13,9 @@ export default async function ProjectVerification({ params }: { params: Promise<
 
   if (!project || !milestone) {
     return (
-      <div className="min-h-screen flex flex-col bg-white text-neutral-900">
-        <header className="border-b border-neutral-200">
-          <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-            <div className="text-sm font-semibold tracking-tight">
-              <Link className="hover:text-neutral-600" href="/">AI Escrow Judge</Link>
-            </div>
-            <nav className="flex items-center gap-6 text-sm">
-              <Link className="text-neutral-600 hover:text-neutral-900" href="/projects">Projects</Link>
-            </nav>
-          </div>
-        </header>
-        <main className="flex-1">
-          <div className="mx-auto max-w-6xl px-6 py-16 text-sm text-neutral-700">Project or milestone not found.</div>
-        </main>
-      </div>
+      <SiteShell>
+        <div className="mx-auto max-w-6xl px-6 py-16 text-sm text-neutral-700">Project or milestone not found.</div>
+      </SiteShell>
     );
   }
 

@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'AI Escrow Judge',
-  description: 'Verify the work before you release the payment.',
+  description: 'Verify the work before you approve the milestone.',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

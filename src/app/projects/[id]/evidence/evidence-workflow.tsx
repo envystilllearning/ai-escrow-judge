@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { StatusBadge, SectionLabel, criterionTitle } from '@/app/components/status';
 
 const EVIDENCE_TYPES = [
   { value: 'TEXT', label: 'Text', placeholder: 'Enter evidence text.' },
@@ -8,6 +10,13 @@ const EVIDENCE_TYPES = [
   { value: 'REPOSITORY_URL', label: 'Repository URL', placeholder: 'https://github.com/owner/repo' },
   { value: 'IMAGE', label: 'Image', placeholder: 'Paste image URL or file reference.' },
 ];
+
+const TYPE_LABELS: Record<string, string> = {
+  TEXT: 'Text',
+  URL: 'Production URL',
+  REPOSITORY_URL: 'Repository',
+  IMAGE: 'Screenshot',
+};
 
 type FormState = {
   type: string;
@@ -63,6 +72,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState<string | null>(null);
 
   const reset = () => {
     setForm(emptyForm);
@@ -98,6 +108,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Update failed.');
         setMessage('Evidence updated.');
+        setSavedFlash('Evidence updated.');
         setForm(emptyForm);
         setEditingId(null);
       } else {
@@ -109,6 +120,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Submission failed.');
         setMessage('Evidence added.');
+        setSavedFlash('Evidence added.');
         setForm(emptyForm);
       }
       setErrors({});
@@ -168,48 +180,77 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
     setMessage('Evidence submitted. Ready for verification.');
   };
 
-  const isLocked = ['verified', 'approved', 'READY_FOR_VERIFICATION'].includes(milestone.status);
+  const isLocked = ['verified', 'approved', 'READY_FOR_VERIFICATION', 'VERIFIED', 'APPROVED'].includes(milestone.status);
+
+  const codeFor = (criterionId: string) => criteria.find((c) => c.id === criterionId)?.code ?? criterionId.slice(0, 8);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-xs text-neutral-500 uppercase tracking-wide">Evidence</div>
+          <SectionLabel>Evidence</SectionLabel>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">{milestone.title}</h1>
-          <div className="mt-1 text-sm text-neutral-600">Status: {milestone.status}</div>
+          <div className="mt-2"><StatusBadge status={milestone.status} /></div>
         </div>
-        <div className="text-xs text-neutral-500">Project: {projectId}</div>
+      </div>
+
+      <div className="mt-8 rounded border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
+        <span className="font-semibold text-neutral-900">Claims describe what was completed.</span>{' '}
+        Evidence demonstrates it. Every evidence item is tied to the criteria it supports.
       </div>
 
       <section className="mt-10">
-        <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Accepted criteria</h2>
-        <div className="mt-4 space-y-3">
-          {criteria.length ? criteria.map((c) => (
-            <div key={c.id} className="rounded border border-neutral-200 p-4">
-              <div className="flex items-start justify-between text-sm">
-                <div>
-                  <div className="font-mono text-neutral-800">{c.code}</div>
-                  <div className="mt-1 text-neutral-700">{c.description}</div>
+        <SectionLabel>Submitted evidence</SectionLabel>
+        <div className="mt-4 space-y-4">
+          {evidence.length ? evidence.map((item, index) => {
+            const codes = item.criterionIds.map((cid) => codeFor(cid)).join(', ');
+            return (
+              <div key={item.id} className="rounded border border-neutral-200 p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center justify-center rounded border border-neutral-300 bg-white px-2 py-0.5 font-mono text-xs font-semibold text-neutral-800">
+                        E-{String(index + 1).padStart(3, '0')}
+                      </span>
+                      <span className="text-sm font-medium text-neutral-900">{TYPE_LABELS[item.type] ?? item.type}</span>
+                      <StatusBadge status={item.status === 'DRAFT' ? 'draft' : item.status} />
+                    </div>
+                    <div className="mt-2 text-sm font-medium text-neutral-900">{item.description || 'No description'}</div>
+                    <div className="mt-1 break-all font-mono text-xs text-neutral-500">{item.content}</div>
+                    <div className="mt-3 text-xs text-neutral-600">
+                      Supports: <span className="font-medium text-neutral-800">{codes || 'None'}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-neutral-500">
+                      Submitted by {item.submittedBy || 'freelancer'}
+                    </div>
+                  </div>
+                  {!isLocked ? (
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button onClick={() => startEdit(item)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm">Edit</button>
+                      <button onClick={() => removeItem(item.id)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-red-300 hover:text-red-800 transition-colors text-sm">Delete</button>
+                    </div>
+                  ) : null}
                 </div>
-                <div className="text-xs text-neutral-500">Verification type: {c.verificationType}</div>
               </div>
-              <div className="mt-2 text-xs text-neutral-500">Required evidence: {c.requiredEvidence.join(', ')}</div>
-              {c.ambiguityFlag ? <div className="mt-2 text-xs text-neutral-500">Ambiguity flag: true</div> : null}
+            );
+          }) : (
+            <div className="rounded border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500">
+              No supporting evidence has been submitted yet.
             </div>
-          )) : <div className="text-sm text-neutral-500">No approved criteria yet.</div>}
+          )}
         </div>
       </section>
 
       <section className="mt-10">
-        <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">{editingId ? 'Edit evidence' : 'Add evidence'}</h2>
+        <SectionLabel>{editingId ? 'Edit evidence' : 'Add evidence'}</SectionLabel>
         <div className="mt-4 rounded border border-neutral-200 p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="text-sm">
               <span className="block text-xs text-neutral-500">Evidence type</span>
               <select
                 value={form.type}
                 onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-                className="mt-1 w-full h-10 rounded border border-neutral-300 bg-white px-3 text-sm"
+                className="mt-1 w-full h-10 rounded border border-neutral-300 bg-white px-3 text-sm focus:outline-none focus:border-neutral-900"
               >
                 {EVIDENCE_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -221,7 +262,7 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
               <input
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                className="mt-1 w-full h-10 rounded border border-neutral-300 px-3 text-sm"
+                className="mt-1 w-full h-10 rounded border border-neutral-300 px-3 text-sm focus:outline-none focus:border-neutral-900"
                 placeholder="Short description of evidence"
               />
             </label>
@@ -233,22 +274,15 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
               <textarea
                 value={form.content}
                 onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                className="mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:border-neutral-900"
                 rows={4}
                 placeholder={EVIDENCE_TYPES.find((x) => x.value === form.type)?.placeholder}
-              />
-            ) : form.type === 'IMAGE' ? (
-              <input
-                value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                className="mt-1 w-full h-10 rounded border border-neutral-300 px-3 text-sm"
-                placeholder="Image URL or uploaded file reference"
               />
             ) : (
               <input
                 value={form.content}
                 onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                className="mt-1 w-full h-10 rounded border border-neutral-300 px-3 text-sm"
+                className="mt-1 w-full h-10 rounded border border-neutral-300 px-3 text-sm focus:outline-none focus:border-neutral-900"
                 placeholder={EVIDENCE_TYPES.find((x) => x.value === form.type)?.placeholder}
               />
             )}
@@ -265,9 +299,9 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
                     key={c.id}
                     type="button"
                     onClick={() => setForm((f) => ({ ...f, criterionIds: selected ? f.criterionIds.filter((id) => id !== c.id) : [...f.criterionIds, c.id] }))}
-                    className={`inline-flex h-9 items-center rounded border px-3 text-xs transition-colors ${selected ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:border-neutral-900'}`}
+                    className={`inline-flex h-9 items-center rounded border px-3 text-xs font-medium transition-colors ${selected ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:border-neutral-900'}`}
                   >
-                    {c.code}
+                    {c.code} · {criterionTitle(c.code)}
                   </button>
                 );
               })}
@@ -279,62 +313,32 @@ export function EvidenceWorkflow({ projectId, milestone, criteria, evidence }: P
             <button
               onClick={save}
               disabled={loading || isLocked}
-              className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60"
             >
               {loading ? 'Saving...' : editingId ? 'Update evidence' : 'Add evidence'}
             </button>
             {editingId ? (
-              <button onClick={reset} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors">Cancel</button>
+              <button onClick={reset} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors text-sm">Cancel</button>
             ) : null}
+            {savedFlash ? <span className="text-xs text-green-700">{savedFlash}</span> : null}
           </div>
         </div>
       </section>
 
-      <section className="mt-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Evidence</h2>
-          {evidence.length ? <div className="text-xs text-neutral-500">{evidence.length} item(s)</div> : null}
-        </div>
-        <div className="mt-4 space-y-3">
-          {evidence.length ? evidence.map((item) => (
-            <div key={item.id} className="rounded border border-neutral-200 p-4">
-              <div className="flex items-start justify-between text-sm">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-neutral-800">{item.id.slice(0, 8)}</span>
-                    <span className="text-xs text-neutral-500">{item.type}</span>
-                  </div>
-                  <div className="mt-1 text-neutral-700">{item.description || 'No description'}</div>
-                  <div className="mt-1 text-xs text-neutral-600">{item.content}</div>
-                  <div className="mt-2 text-xs text-neutral-600">
-                    Related: {item.criterionIds.map((cid) => criteria.find((c) => c.id === cid)?.code || cid).join(', ') || 'None'}
-                  </div>
-                  <div className="mt-1 text-xs text-neutral-500">Status: {item.status} {item.submittedBy ? `• Submitted by ${item.submittedBy}` : ''}</div>
-                </div>
-                {!isLocked ? (
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => startEdit(item)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors">Edit</button>
-                    <button onClick={() => removeItem(item.id)} className="inline-flex h-9 items-center justify-center px-3 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors">Delete</button>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          )) : <div className="text-sm text-neutral-500">No evidence submitted yet.</div>}
-        </div>
-      </section>
-
-      {message ? <div className="mt-6 text-sm text-neutral-800">{message}</div> : null}
+      {message && message !== savedFlash ? <div className="mt-6 text-sm text-neutral-800">{message}</div> : null}
 
       <section className="mt-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Milestone action</h2>
+          <SectionLabel>Milestone action</SectionLabel>
         </div>
-        <div className="mt-4 flex items-center gap-3">
-          <button onClick={submitForVerification} disabled={loading || isLocked} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60">
-            {loading ? 'Submitting...' : 'Submit for Verification'}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button onClick={submitForVerification} disabled={loading || isLocked} className="inline-flex h-10 items-center justify-center px-4 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-60">
+            {loading ? 'Submitting...' : 'Submit for verification'}
           </button>
-          <a className="inline-flex h-10 items-center justify-center px-4 border border-neutral-300 text-neutral-700 hover:border-neutral-900 transition-colors" href={`/projects/${projectId}/verification`}>Go to verification</a>
-          {isLocked ? <div className="mt-2 text-xs text-neutral-500">This milestone is already submitted or verified.</div> : null}
+          <Link className="inline-flex h-10 items-center justify-center px-4 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors" href={`/projects/${projectId}/verification`}>
+            Go to verification
+          </Link>
+          {isLocked ? <div className="text-xs text-neutral-500">This milestone is already submitted or verified.</div> : null}
         </div>
       </section>
     </div>

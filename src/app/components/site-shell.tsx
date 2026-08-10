@@ -31,10 +31,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
             <Link
-              className="inline-flex items-center justify-center h-9 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors"
-              href="/projects/new"
+              className="inline-flex items-center justify-center h-9 px-4 bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
+              href="/projects/demo"
             >
-              Create Project
+              Try Demo
             </Link>
           </nav>
         </div>

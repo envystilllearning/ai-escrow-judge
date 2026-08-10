@@ -1,7 +1,7 @@
 import { SiteShell } from '@/app/components/site-shell';
-import type { Project } from '@/types';
+import { StatusBadge, LifecycleSteps, SectionLabel } from '@/app/components/status';
 import Link from 'next/link';
-import { getProject } from '@/app/actions/store';
+import { getProject, DEMO_PROJECT_ID } from '@/app/actions/store';
 
 export default async function ProjectOverview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -9,118 +9,130 @@ export default async function ProjectOverview({ params }: { params: Promise<{ id
 
   if (!project) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <h1 className="text-2xl font-semibold tracking-tight">Project not found</h1>
-        <Link className="mt-4 inline-flex h-10 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href="/projects">Back to projects</Link>
-      </div>
+      <SiteShell>
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <h1 className="text-3xl font-semibold tracking-tight">Project not found</h1>
+          <Link
+            className="mt-6 inline-flex h-11 items-center justify-center px-5 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors"
+            href="/projects"
+          >
+            Back to projects
+          </Link>
+        </div>
+      </SiteShell>
     );
   }
 
-  const agreement = project.agreement || {};
-  const latestMilestone = project.milestones?.[0];
+  const agreement = project.agreement;
+  const milestone = project.milestones?.[0];
+  const decisions = project.decisions?.length ?? 0;
+  const hasVerification = Boolean(milestone?.verification);
+  const evidenceCount = milestone?.evidence?.length ?? 0;
+  const criteriaCount = milestone?.criteria?.length ?? 0;
+  const step = decisions > 0 ? 5 : hasVerification ? 4 : evidenceCount > 0 ? 3 : 2;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-neutral-900">
-      <header className="border-b border-neutral-200">
-        <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-          <div className="text-sm font-semibold tracking-tight">
-            <Link className="hover:text-neutral-600" href="/">AI Escrow Judge</Link>
+    <SiteShell>
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <Link href="/projects" className="text-sm text-neutral-500 hover:text-neutral-900">
+          ← Projects
+        </Link>
+
+        <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Project</div>
+              {project.id === DEMO_PROJECT_ID ? (
+                <span className="inline-flex items-center rounded-full border border-neutral-300 bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
+                  Interactive Demo
+                </span>
+              ) : null}
+            </div>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-neutral-900">{project.title}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
+              {typeof project.budget === 'number' ? (
+                <span className="font-medium text-neutral-900">${project.budget.toLocaleString()}</span>
+              ) : null}
+              {milestone ? <span>{milestone.title}</span> : null}
+            </div>
           </div>
-          <nav className="flex items-center gap-6 text-sm">
-            <Link className="text-neutral-600 hover:text-neutral-900" href="/projects">Projects</Link>
-            <Link className="inline-flex items-center justify-center h-10 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href={`/projects/${project.id}/evidence`}>Evidence</Link>
-          </nav>
+          <StatusBadge status={project.status} />
         </div>
-      </header>
 
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{project.title}</h1>
-              <p className="mt-1 text-neutral-600">{project.description}</p>
-            </div>
-            <div className="text-xs text-neutral-500">Status: {project.status}</div>
+        <div className="mt-10">
+          <SectionLabel>Project lifecycle</SectionLabel>
+          <div className="mt-3"><LifecycleSteps current={step} /></div>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded border border-neutral-200 p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Acceptance criteria</div>
+            <div className="mt-2 text-3xl font-semibold text-neutral-900">{criteriaCount}</div>
+            <div className="mt-1 text-xs text-neutral-500">explicit criteria from the agreement</div>
           </div>
-
-          <section className="mt-10">
-            <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Agreement</h2>
-            <p className="mt-2 text-neutral-800 leading-relaxed">{agreement.statement || 'No agreement yet.'}</p>
-            <div className="mt-2 text-xs text-neutral-500">Status: {agreement.status || 'draft'} {agreement.approvedAt ? `• Approved at ${agreement.approvedAt}` : ''}</div>
-            <div className="mt-4">
-              <Link className="inline-flex items-center justify-center h-10 px-4 border border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors" href={`/projects/${project.id}/agreement`}>
-                {agreement.status === 'analyzed' || agreement.status === 'approved' ? 'Review agreement' : 'Analyze agreement'}
-              </Link>
+          <div className="rounded border border-neutral-200 p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Evidence items</div>
+            <div className="mt-2 text-3xl font-semibold text-neutral-900">{evidenceCount}</div>
+            <div className="mt-1 text-xs text-neutral-500">submitted by the freelancer</div>
+          </div>
+          <div className="rounded border border-neutral-200 p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Verification</div>
+            <div className="mt-2">
+              {hasVerification && milestone?.verification ? (
+                <StatusBadge status={milestone.verification.summary.overallStatus} />
+              ) : (
+                <StatusBadge status={milestone?.status ?? 'UNVERIFIED'} />
+              )}
             </div>
-          </section>
+            <div className="mt-1 text-xs text-neutral-500">{hasVerification ? 'AI assessment complete' : 'Not yet run'}</div>
+          </div>
+          <div className="rounded border border-neutral-200 p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Human decision</div>
+            <div className="mt-2 text-3xl font-semibold text-neutral-900">{decisions > 0 ? decisions : '—'}</div>
+            <div className="mt-1 text-xs text-neutral-500">{decisions > 0 ? 'decision recorded' : 'pending'}</div>
+          </div>
+        </div>
 
-          <section className="mt-10">
-            <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Milestones</h2>
-            <div className="mt-4 space-y-4">
-              {latestMilestone ? (
-                <div className="rounded border border-neutral-200 p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="text-sm font-medium">{latestMilestone.title}</div>
-                      <div className="mt-1 text-sm text-neutral-600">{latestMilestone.description}</div>
-                    </div>
-                    <div className="text-xs text-neutral-500">{latestMilestone.status}</div>
-                  </div>
+        <div className="mt-10">
+          <SectionLabel>Agreement</SectionLabel>
+          <div className="mt-3 rounded border border-neutral-200 p-5">
+            <p className="text-neutral-800 leading-relaxed">{agreement?.statement || 'No agreement yet.'}</p>
+            <div className="mt-2 text-xs text-neutral-500">
+              AI-generated · Human-reviewable · Status: {agreement?.status || 'draft'}
+            </div>
+          </div>
+        </div>
 
-                  <div className="mt-5">
-                    <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Criteria</div>
-                    <ul className="mt-2 space-y-2">
-                      {latestMilestone.criteria?.map((criterion: any) => (
-                        <li key={criterion.id} className="flex items-start justify-between text-sm">
-                          <div>
-                            <span className="font-mono text-neutral-700">{criterion.code}</span>
-                            <span className="ml-2 text-neutral-600">{criterion.description}</span>
-                            {criterion.ambiguityFlag ? <span className="ml-2 text-xs text-neutral-500">Ambiguous</span> : null}
-                          </div>
-                          <span className="text-neutral-500">{criterion.status}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-5">
-                    <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Evidence</div>
-                    {latestMilestone.evidence?.length ? (
-                      <ul className="mt-2 space-y-2 text-sm text-neutral-700">
-                        {latestMilestone.evidence.map((item: any) => (
-                          <li key={item.id}>{item.type}: {item.description || item.content}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="mt-2 text-sm text-neutral-500">No evidence submitted yet.</div>
-                    )}
-                  </div>
+        {milestone ? (
+          <div className="mt-10">
+            <SectionLabel>Milestone</SectionLabel>
+            <div className="mt-3 rounded border border-neutral-200 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-neutral-900">{milestone.title}</div>
+                  <div className="mt-1 text-sm text-neutral-600">{milestone.description}</div>
                 </div>
-              ) : <div className="text-sm text-neutral-500">No milestones yet.</div>}
+                <StatusBadge status={milestone.status} />
+              </div>
             </div>
-          </section>
+          </div>
+        ) : null}
 
-          <section className="mt-10">
-            <h2 className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Settlement Simulation</h2>
-            {project.settlementSimulations?.length ? (
-              <ul className="mt-3 space-y-2 text-sm text-neutral-700">
-                {project.settlementSimulations.map((sim: any) => (
-                  <li key={sim.id}>{sim.simulatedNetwork} {sim.currency} {sim.simulatedAmount} — {sim.status}</li>
-                ))}
-              </ul>
-            ) : (
-              <div className="mt-2 text-sm text-neutral-500">No settlement simulation yet.</div>
-            )}
-          </section>
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Link
+            className="inline-flex h-11 items-center justify-center px-5 border border-neutral-900 text-neutral-900 text-sm font-semibold hover:bg-neutral-900 hover:text-white transition-colors"
+            href={`/projects/${project.id}/evidence`}
+          >
+            Review evidence
+          </Link>
+          <Link
+            className="inline-flex h-11 items-center justify-center px-5 bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
+            href={`/projects/${project.id}/verification`}
+          >
+            Open verification
+          </Link>
         </div>
-      </main>
-
-      <footer className="border-t border-neutral-200">
-        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between text-xs text-neutral-500">
-          <div>Demo environment. No wallet or payment is required.</div>
-          <div className="uppercase tracking-wide">AI Escrow Judge</div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </SiteShell>
   );
 }
